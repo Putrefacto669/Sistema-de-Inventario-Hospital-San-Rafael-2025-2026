@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Clínica San Rafael</title>
+    <!-- El CSS está integrado en una etiqueta <style>, lo separamos abajo -->
+</head>
+<body>
+    <!-- Resplandor del mouse -->
+    <div id="cursor-glow"></div>
+
+    <!-- Burbujas del fondo -->
+    <div id="bubbles"></div>
+
+    <!-- Sidebar (menú lateral) -->
+    <div class="sidebar">
+        <h2>Clínica San Rafael</h2>
+        <div class="menu-item">🏠 Dashboard</div>
+        <div class="menu-item">📦 Inventario</div>
+        <div class="menu-item">➕ Agregar Producto</div>
+        <div class="menu-item">📊 Reportes</div>
+        <div class="menu-item">⚙ Configuración</div>
+        <div class="menu-item" onclick="logout()">🚪 Cerrar Sesión</div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main">
+        <h1 class="title">Panel Principal</h1>
+        <div class="cards">
+            <div class="card">
+                <h3>Total Productos</h3>
+                <p id="totalProductos">142</p>
+            </div>
+            <div class="card">
+                <h3>Stock Bajo</h3>
+                <p id="stockBajo">7</p>
+            </div>
+            <div class="card">
+                <h3>Última Actualización</h3>
+                <p id="ultimaActualizacion">Hoy, 10:45 AM</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- El JavaScript está integrado en una etiqueta <script>, lo separamos abajo -->
+</body>
+</html>
