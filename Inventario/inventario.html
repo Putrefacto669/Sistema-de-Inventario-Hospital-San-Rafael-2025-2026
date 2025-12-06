@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventario - Clínica San Rafael</title>
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #8dd0ff, #4a9fff);
+            font-family: 'Frutiger LT Std', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 25px;
+            color: #003d7a;
+            position: relative;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* === Fondo: hojas y gotas estáticas,De nuevo no me salen las hojas de mierda  === */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 25%, rgba(100, 180, 100, 0.03) 1px, transparent 2px),
+                radial-gradient(circle at 50% 80%, rgba(100, 180, 100, 0.025) 1.5px, transparent 2.5px),
+                radial-gradient(circle at 90% 10%, rgba(90, 170, 90, 0.035) 1.2px, transparent 2.2px),
+                radial-gradient(circle at 30% 60%, rgba(200, 230, 255, 0.04) 1px, transparent 2px),
+                radial-gradient(circle at 75% 45%, rgba(190, 225, 250, 0.035) 0.9px, transparent 1.9px);
+            background-size: 300px 300px;
+            background-repeat: repeat;
+            z-index: -3;
+            pointer-events: none;
+        }
+
+        /* === Resplandor del mouse === */
+        #cursor-glow {
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(255,255,255,0.82) 0%, transparent 80%);
+            pointer-events: none;
+            z-index: 5;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: screen;
+            opacity: 0.85;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            text-shadow: 0px 3px 8px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        .container {
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.5);
+            opacity: 0;
+            transform: translateY(15px);
+            animation: fadeIn 0.8s 0.2s forwards;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(173, 216, 230, 0.6);
+            background: rgba(255,255,255,0.85);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.07);
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            background: rgba(255,255,255,0.95);
+            border-color: #81d4fa;
+            box-shadow: 
+                0 0 0 2px rgba(129, 212, 250, 0.4),
+                inset 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #cfe9ff, #a7d0ff);
+            box-shadow: 
+                0 4px 12px rgba(0,0,0,0.15),
+                inset 0 1px 0 rgba(255,255,255,0.6);
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            color: #003366;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20px;
+            height: 200%;
+            background: rgba(255,255,255,0.4);
+            transform: rotate(25deg);
+            transition: left 0.5s;
+            opacity: 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 6px 18px rgba(0,0,0,0.2),
+                inset 0 1px 0 rgba(255,255,255,0.7);
+        }
+
+        .btn:hover::after {
+            left: 120%;
+            opacity: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: rgba(255,255,255,0.85);
+            border-radius: 12px;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 0.7s 0.4s forwards;
+        }
+
+        th {
+            background: rgba(200, 230, 255, 0.85);
+            padding: 12px;
+            text-align: left;
+            color: #003d7a;
+            font-size: 16px;
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(255,255,255,0.6);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.07);
+            font-size: 15px;
+            transition: background 0.3s ease;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: rgba(255,255,255,0.95);
+            transform: translateX(4px);
+            transition: all 0.25s ease;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 13px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            margin: 0 4px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .edit {
+            background: linear-gradient(135deg, #fff9c4, #ffd54f);
+            color: #5d4037;
+        }
+
+        .delete {
+            background: linear-gradient(135deg, #ffcdd2, #f48fb1);
+            color: #b71c1c;
+        }
+
+        .btn-small:hover {
+            transform: scale(1.08);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        /* === Burbujas === */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(220,240,255,0.2) 60%, transparent 100%);
+            backdrop-filter: blur(4px);
+            animation: float 16s infinite ease-in-out;
+            pointer-events: none;
+            box-shadow: 0 0 14px rgba(255,255,255,0.4);
+            z-index: 1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-35px) rotate(5deg); }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Resplandor del mouse -->
+    <div id="cursor-glow"></div>
+
+    <!-- Burbujas -->
+    <div id="bubbles"></div>
+
+    <h1>Inventario - Clínica San Rafael</h1>
+
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="search" placeholder="Buscar por código, nombre o categoría...">
+            <button class="btn" onclick="window.location.href='agregar.html'">➕ Agregar Producto</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaInventario"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // === Cursor glow suave ===
+        const glow = document.getElementById('cursor-glow');
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let glowX = mouseX;
+        let glowY = mouseY;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateGlow() {
+            glowX += (mouseX - glowX) / 10;
+            glowY += (mouseY - glowY) / 10;
+            glow.style.left = glowX + 'px';
+            glow.style.top = glowY + 'px';
+            requestAnimationFrame(animateGlow);
+        }
+        animateGlow();
+
+        // === Burbujas ===
+        const bubblesContainer = document.getElementById('bubbles');
+        const bubbleCount = 10;
+        const bubbles = [];
+
+        for (let i = 0; i < bubbleCount; i++) {
+            const size = Math.random() * 90 + 35;
+            const bubble = document.createElement('div');
+            bubble.classList.add('bubble');
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
+            bubble.style.left = posX + '%';
+            bubble.style.top = posY + '%';
+            bubble.style.animationDelay = Math.random() * 12 + 's';
+            bubble.style.animationDuration = (14 + Math.random() * 6) + 's';
+            bubble.style.opacity = 0.4 + Math.random() * 0.4;
+            bubblesContainer.appendChild(bubble);
+
+            bubbles.push({
+                el: bubble,
+                originalLeft: posX,
+                originalTop: posY
+            });
+        }
+
+        document.addEventListener('mousemove', () => {
+            bubbles.forEach(b => {
+                const rect = b.el.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const dx = mouseX - centerX;
+                const dy = mouseY - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const threshold = 120;
+
+                if (distance < threshold) {
+                    const force = (threshold - distance) / threshold;
+                    const angle = Math.atan2(dy, dx);
+                    const escapeX = b.originalLeft + Math.cos(angle) * force * 8;
+                    const escapeY = b.originalTop + Math.sin(angle) * force * 8;
+
+                    b.el.style.transform = `translate(${escapeX - b.originalLeft}%, ${escapeY - b.originalTop}%) scale(${1 + force * 0.2})`;
+                    b.el.style.transition = 'transform 0.3s ease-out';
+                } else {
+                    b.el.style.transform = 'translate(0, 0) scale(1)';
+                    b.el.style.transition = 'transform 0.6s ease-out';
+                }
+            });
+        });
+
+        // === Datos y tabla ===
+        let inventario = [
+            { codigo: "A001", nombre: "Gasas Esterilizadas", categoria: "Curación", cantidad: 40, precio: 3.50 },
+            { codigo: "A002", nombre: "Guantes Latex", categoria: "Protección", cantidad: 120, precio: 1.20 },
+            { codigo: "A003", nombre: "Jeringas 5ml", categoria: "Inyección", cantidad: 75, precio: 2.10 },
+            { codigo: "A004", nombre: "Alcohol Isopropílico", categoria: "Desinfección", cantidad: 30, precio: 4.80 },
+            { codigo: "A005", nombre: "Mascarillas Quirúrgicas", categoria: "Protección", cantidad: 200, precio: 0.60 }
+        ];
+
+        const tabla = document.getElementById("tablaInventario");
+
+        function cargarTabla() {
+            tabla.innerHTML = "";
+            inventario.forEach((p) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${p.codigo}</td>
+                    <td>${p.nombre}</td>
+                    <td>${p.categoria}</td>
+                    <td>${p.cantidad}</td>
+                    <td>$${p.precio.toFixed(2)}</td>
+                    <td>
+                        <button class="btn-small edit" onclick="editar('${p.codigo}')">✏️</button>
+                        <button class="btn-small delete" onclick="eliminar('${p.codigo}')">🗑</button>
+                    </td>
+                `;
+                tabla.appendChild(row);
+            });
+        }
+
+        cargarTabla();
+
+        document.getElementById("search").addEventListener("input", function () {
+            const filtro = this.value.toLowerCase();
+            const filas = tabla.getElementsByTagName("tr");
+            for (let fila of filas) {
+                const texto = fila.innerText.toLowerCase();
+                fila.style.display = texto.includes(filtro) ? "" : "none";
+            }
+        });
+
+        function editar(codigo) {
+            alert("Editar: " + codigo);
+        }
+
+        function eliminar(codigo) {
+            if (confirm("¿Eliminar producto " + codigo + "?")) {
+                inventario = inventario.filter(i => i.codigo !== codigo);
+                cargarTabla();
+            }
+        }
+    </script>
+</body>
+</html>
