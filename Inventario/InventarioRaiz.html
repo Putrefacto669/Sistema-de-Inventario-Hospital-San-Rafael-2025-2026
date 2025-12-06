@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventario - Clínica San Rafael</title>
+    <!-- El CSS está integrado en <style>, lo separamos abajo -->
+</head>
+<body>
+    <!-- Resplandor del mouse -->
+    <div id="cursor-glow"></div>
+
+    <!-- Burbujas del fondo -->
+    <div id="bubbles"></div>
+
+    <h1>Inventario - Clínica San Rafael</h1>
+
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="search" placeholder="Buscar por código, nombre o categoría...">
+            <button class="btn" onclick="window.location.href='agregar.html'">➕ Agregar Producto</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaInventario"></tbody>
+        </table>
+    </div>
+
+    <!-- El JavaScript está integrado en <script>, lo separamos abajo -->
+</body>
+</html>
